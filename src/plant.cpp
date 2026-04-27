@@ -121,7 +121,9 @@ PlantResult Plants::openPlant(QString filePath)
 
    jsonData = jsonFile.readAll();
 
-   if (jsonData.isEmpty() || jsonFile.errorString() != "Unknown error")
+   // QFile::errorString() returns "Unknown error" when there is no error — do not use it as a
+   // failure indicator. Only check for empty data.
+   if (jsonData.isEmpty())
       return PlantResult{nullptr,
                          C::gettext("Failed to open plant JSON #2: ") + jsonFile.errorString()};
 
@@ -193,7 +195,9 @@ PlantResult Plants::_openPlant(QByteArray jsonData)
 
       imageData = thumbFile.readAll();
 
-      if (imageData.isEmpty() || thumbFile.errorString() != "Unknown error")
+      // QFile::errorString() returns "Unknown error" when there is no error — do not use it as a
+      // failure indicator. Only check for empty data.
+      if (imageData.isEmpty())
          return PlantResult{nullptr,
                             C::gettext("Failed to open plant image: ") + thumbFile.errorString()};
 
