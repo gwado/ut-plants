@@ -1,0 +1,63 @@
+name: Publish app update to open store
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check version does not already exist
+        run: |
+          APP_ID=$(jq -r .name manifest.json.in)
+          VERSION=$(jq -r .version manifest.json.in)
+
+          if curl -s "https://open-store.io/api/v3/apps/${APP_ID}" \
+            | jq -e --arg v "$VERSION" '
+                .data.downloads[]
+                | select(.version == $v)
+              ' > /dev/null; then
+            echo "Version $VERSION already exists. Refusing to publish."
+            exit 1
+          fi
+
+  ubuntu-touch:
+    needs: check
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [armhf, arm64, amd64]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: build package
+        uses: tuxecure/clickable@v1
+        with:
+          image: clickable/ci-20.04-${{ matrix.arch }}
+          run: clickable build
+
+      - name: Upload .click package
+        uses: actions/upload-artifact@v4
+        with:
+          name: click-packages-${{ matrix.arch }}
+          path: build/*/app/*.click
+
+      - name: Publish to Open Store
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: tuxecure/clickable@v1
+        env:
+          OPENSTORE_KEY: ${{ secrets.OPENSTORE_KEY }}
+        with:
+          image: clickable/ci-20.04-${{ matrix.arch }}
+          run: |
+            CHANGELOG="$(git log -1 --pretty=%s)"
+            clickable publish "$CHANGELOG" --apikey ${OPENSTORE_KEY}
