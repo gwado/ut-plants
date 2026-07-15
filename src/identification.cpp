@@ -263,6 +263,7 @@ QHttpMultiPart* Identification::createMultipart(QVariantList& request, QVariantL
    if (!request.size())
    {
       err = "No images contained in request";
+      delete multiPart;
       return nullptr;
    }
 
@@ -273,6 +274,7 @@ QHttpMultiPart* Identification::createMultipart(QVariantList& request, QVariantL
       if (!map.contains("url") || !map.contains("organ"))
       {
          err = "Invalid image info with missing url/type";
+         delete multiPart;
          return nullptr;
       }
 
@@ -294,7 +296,13 @@ QHttpMultiPart* Identification::createMultipart(QVariantList& request, QVariantL
 
       QFile* file = new QFile(url);
       file->setParent(multiPart); // we cannot delete the file now, so delete it with the multiPart
-      file->open(QIODevice::ReadOnly);
+
+      if (!file->open(QIODevice::ReadOnly))
+      {
+         err = QString("Failed to open image file for upload: %1 (%2)").arg(url, file->errorString());
+         delete multiPart;
+         return nullptr;
+      }
 
       imagePart.setBodyDevice(file);
       multiPart->append(imagePart);
