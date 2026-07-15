@@ -213,22 +213,17 @@ QString PlantsModel::deletePlant(QString id)
    if (!plantFile.exists())
       return C::gettext("Failed to delete plant (plant unknown)");
 
-   bool res = plantFile.remove();
-
-   if (!res)
-      return QString(C::gettext("Failed to delete plant from storage directory (%1)"))
-        .arg(plantFile.errorString());
-
    for (QVariant& image : plant->images)
    {
       QVariantMap dict = image.toMap();
-      QFile imageFile(dict["url"].toString());
 
       if (!dict["ownPhoto"].toBool())
          continue;
 
+      QFile imageFile(dict["url"].toString());
+
       if (!imageFile.exists())
-         return C::gettext("Failed to delete plant (plant unknown)");
+         continue; // already gone; nothing to clean up, not a reason to abort the delete
 
       bool res = imageFile.remove();
 
@@ -236,6 +231,12 @@ QString PlantsModel::deletePlant(QString id)
          return QString(C::gettext("Failed to delete plant image from storage directory (%1)"))
            .arg(imageFile.errorString());
    }
+
+   bool res = plantFile.remove();
+
+   if (!res)
+      return QString(C::gettext("Failed to delete plant from storage directory (%1)"))
+        .arg(plantFile.errorString());
 
    beginResetModel();
 
