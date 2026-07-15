@@ -195,7 +195,9 @@ Page {
    }
 
    function openSettings() {
-      var p = pageStack.push(Qt.resolvedUrl("./SettingsPage.qml"))
+      var p = pageStack.push(Qt.resolvedUrl("./SettingsPage.qml"), {
+                                 "plantsModel": plantsModel
+                              })
 
       p.apiKeyChanged.connect(function (key) {
          settings.apiKey = key

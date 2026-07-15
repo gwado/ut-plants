@@ -89,6 +89,11 @@ public:
       identificator.setApiKey(key);
    }
 
+   Q_INVOKABLE void testApiKey(QString key)
+   {
+      identificator.testApiKey(key);
+   }
+
    Q_INVOKABLE QString savePlant(QVariantMap identificationResult);
    Q_INVOKABLE QString deletePlant(QString id);
    Q_INVOKABLE void identifyPlant(QVariantList request);
@@ -101,6 +106,7 @@ public:
 signals:
    void countChanged();
    void identificationResult(QString error, QVariantList result);
+   void apiKeyTestResult(bool ok, QString error);
 
 private:
    QString getDataPath() const;
