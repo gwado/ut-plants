@@ -195,8 +195,7 @@ void Identification::identifyPlant(QVariantList& request)
 
            if (!dict.contains("score") || !dict.contains("species") || !dict.contains("images"))
            {
-              emit identificationResult(QString(C::gettext("skipping invalid result #1")),
-                                        resultPayload);
+              qDebug() << "Skipping invalid result: missing score/species/images";
               continue;
            }
 
@@ -206,8 +205,7 @@ void Identification::identifyPlant(QVariantList& request)
 
            if (!species.contains("scientificName") || !species.contains("commonNames"))
            {
-              emit identificationResult(QString(C::gettext("skipping invalid result #2")),
-                                        resultPayload);
+              qDebug() << "Skipping invalid result: missing scientificName/commonNames";
               continue;
            }
 
@@ -231,8 +229,7 @@ void Identification::identifyPlant(QVariantList& request)
               if (!dict.contains("url") || !dict.contains("citation")
                   || !dict["url"].toObject().contains("m"))
               {
-                 emit identificationResult(QString(C::gettext("skipping invalid image #1")),
-                                           resultPayload);
+                 qDebug() << "Skipping invalid result image: missing url/citation";
                  continue;
               }
 
