@@ -87,6 +87,7 @@ PlantResult Plants::createPlant(QVariantMap& identificationResult)
 
    identificationResult["images"] = newImages;
    identificationResult["added"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+   identificationResult.remove("sourceImages"); // temp paths, already copied above; not read again
 
    QByteArray jsonData
      = QJsonDocument::fromVariant(identificationResult).toJson(QJsonDocument::Compact);
@@ -150,8 +151,7 @@ PlantResult Plants::_openPlant(QByteArray jsonData)
       return PlantResult{nullptr, C::gettext("Unexpected/malformed plant JSON #1")};
 
    if (!parsed.contains("id") || !parsed.contains("commonNames") || !parsed.contains("images")
-       || !parsed.contains("score") || !parsed.contains("sourceImages")
-       || !parsed.contains("species"))
+       || !parsed.contains("score") || !parsed.contains("species"))
    {
       return PlantResult{nullptr, C::gettext("Unexpected/malformed plant JSON #2")};
    }
