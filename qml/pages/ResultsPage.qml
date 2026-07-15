@@ -152,6 +152,12 @@ Page {
       snapMode: ListView.SnapToItem
       highlightRangeMode: ListView.StrictlyEnforceRange
 
+      // Use a constant scroll speed instead of a fixed duration: jumping several
+      // results at once (tapping a distant thumbnail in the summary strip) would
+      // otherwise cover a bigger distance in the same time, looking sped up.
+      highlightMoveDuration: -1
+      highlightMoveVelocity: width * 3
+
       property double elementSpacing: units.gu(2)
 
       model: resultsModel
