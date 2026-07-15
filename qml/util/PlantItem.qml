@@ -81,6 +81,28 @@ Rectangle {
       }
    }
 
+   Rectangle {
+      id: scoreBadge
+      visible: item.listMode && !item.placeholder && item.plantObject
+               && item.plantObject.score !== undefined
+      anchors.right: thumbImage.right
+      anchors.bottom: thumbImage.bottom
+      radius: height / 2
+      color: "#232323cc"
+      width: scoreText.width + units.gu(1)
+      height: units.gu(2.2)
+
+      Text {
+         id: scoreText
+         anchors.centerIn: parent
+         property int scoreValue: item.plantObject ? Math.round(item.plantObject.score * 100) : 0
+         text: scoreValue + "%"
+         font.pixelSize: units.gu(1.2)
+         font.bold: true
+         color: scoreValue > 80 ? "white" : (scoreValue > 50 ? LomiriColors.orange : LomiriColors.red)
+      }
+   }
+
    Column {
       visible: !item.placeholder && item.listMode
       anchors.verticalCenter: parent.verticalCenter
