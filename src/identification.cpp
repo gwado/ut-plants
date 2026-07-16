@@ -39,10 +39,44 @@
 // #define API_URL "http://10.0.60.43:3000/identify"
 // #define LANGUAGES_URL "http://10.0.60.43:3000/languages"
 
+#define API_KEY_SETTING "apiKeyEnc"
+#define API_KEY_SETTING_LEGACY "apiKey"
+
 namespace C
 {
 #include <libintl.h>
 }
+
+namespace
+{
+// Not real encryption - just enough that the API key doesn't sit as plain,
+// grep-able text in the app's ~/.config/plants.s710/*.conf file. Anyone with
+// access to the app's binary can still recover the pad and reverse this; it
+// only raises the bar against casually browsing the config file.
+const char OBFUSCATION_PAD[] = "pl@ntnet-ut-plants-key-pad-2026";
+
+QString obfuscateApiKey(const QString& plain)
+{
+   QByteArray data = plain.toUtf8();
+   QByteArray pad(OBFUSCATION_PAD);
+
+   for (int i = 0; i < data.size(); ++i)
+      data[i] = data[i] ^ pad[i % pad.size()];
+
+   return QString::fromLatin1(data.toBase64());
+}
+
+QString deobfuscateApiKey(const QString& encoded)
+{
+   QByteArray data = QByteArray::fromBase64(encoded.toLatin1());
+   QByteArray pad(OBFUSCATION_PAD);
+
+   for (int i = 0; i < data.size(); ++i)
+      data[i] = data[i] ^ pad[i % pad.size()];
+
+   return QString::fromUtf8(data);
+}
+} // namespace
 
 namespace plants
 {
@@ -55,10 +89,10 @@ Identification::Identification(network::Network* network, QObject* parent)
     QObject(parent),
     url(API_URL)
 {
-   QSettings settings;
+   QString key = loadApiKey();
 
-   if (settings.contains("apiKey"))
-      query.addQueryItem("api-key", settings.value("apiKey").toString());
+   if (!key.isEmpty())
+      query.addQueryItem("api-key", key);
 
    query.addQueryItem("include-related-images", "true");
    url.setQuery(query);
@@ -72,14 +106,15 @@ void Identification::initLanguages()
 {
    QSettings settings;
    QUrlQuery q;
+   QString key = loadApiKey();
 
-   if (!settings.contains("apiKey"))
+   if (key.isEmpty())
    {
       qDebug() << "No API key available, skip languages load";
       return;
    }
 
-   q.addQueryItem("api-key", settings.value("apiKey").toString());
+   q.addQueryItem("api-key", key);
 
    QUrl languagesUrl(LANGUAGES_URL);
    languagesUrl.setQuery(q);
@@ -138,6 +173,56 @@ void Identification::setApiKey(QString key)
    query.removeQueryItem("api-key");
    query.addQueryItem("api-key", key);
    url.setQuery(query);
+}
+
+// **************************************************************************
+// persistApiKey
+// **************************************************************************
+
+void Identification::persistApiKey(QString key)
+{
+   QSettings settings;
+
+   settings.setValue(API_KEY_SETTING, obfuscateApiKey(key));
+   settings.remove(API_KEY_SETTING_LEGACY);
+   settings.sync();
+
+   setApiKey(key);
+}
+
+// **************************************************************************
+// loadApiKey
+// **************************************************************************
+
+QString Identification::loadApiKey()
+{
+   QSettings settings;
+
+   if (settings.contains(API_KEY_SETTING))
+      return deobfuscateApiKey(settings.value(API_KEY_SETTING).toString());
+
+   // migrate a plaintext key saved by an older version of the app
+   if (settings.contains(API_KEY_SETTING_LEGACY))
+   {
+      QString legacyKey = settings.value(API_KEY_SETTING_LEGACY).toString();
+
+      settings.setValue(API_KEY_SETTING, obfuscateApiKey(legacyKey));
+      settings.remove(API_KEY_SETTING_LEGACY);
+      settings.sync();
+
+      return legacyKey;
+   }
+
+   return "";
+}
+
+// **************************************************************************
+// hasApiKey
+// **************************************************************************
+
+bool Identification::hasApiKey()
+{
+   return !loadApiKey().isEmpty();
 }
 
 // **************************************************************************

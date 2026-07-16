@@ -51,6 +51,10 @@ public:
    void identifyPlant(QVariantList& request);
    void testApiKey(QString key);
 
+   void persistApiKey(QString key);
+   QString loadApiKey();
+   bool hasApiKey();
+
 signals:
    void identificationResult(QString error, QVariantList result);
    void apiKeyTestResult(bool ok, QString error);

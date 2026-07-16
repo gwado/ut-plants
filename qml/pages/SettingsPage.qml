@@ -17,10 +17,10 @@ Page {
    property var plantsModel: null
    property bool showApiKey: false
    property bool testingApiKey: false
+   property string initialApiKey: plantsModel ? plantsModel.loadApiKey() : ""
 
    Settings {
       id: settings
-      property string apiKey
       property bool keepDisplayOn
    }
 
@@ -115,7 +115,7 @@ Page {
                         id: apiKeyInput
                         placeholderText: i18n.tr("Enter API-Key")
                         width: parent.width - units.gu(2) - saveButton.width
-                        text: settings.apiKey
+                        text: settingsPage.initialApiKey
                         echoMode: settingsPage.showApiKey ? TextInput.Normal : TextInput.Password
 
                         onActiveFocusChanged: {
@@ -130,10 +130,10 @@ Page {
 
                      Button {
                         id: saveButton
-                        enabled: settings.apiKey !== apiKeyInput.text
+                        enabled: settingsPage.initialApiKey !== apiKeyInput.text
                         text: i18n.tr("Save")
                         onClicked: {
-                           settings.apiKey = apiKeyInput.text
+                           plantsModel.persistApiKey(apiKeyInput.text)
                            emit: apiKeyChanged(apiKeyInput.text)
                            pageStack.pop()
                         }
