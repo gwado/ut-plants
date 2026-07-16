@@ -203,7 +203,12 @@ PlantResult Plants::_openPlant(QByteArray jsonData)
 
       thumbFile.close();
 
-      plant->thumbnail = QImage::fromData(imageData);
+      // Saved-plant thumbnails are only ever displayed at list-item size
+      // (PlantItem.qml, units.gu(8)); the source photo can be several
+      // megapixels (Pl@ntNet recommends up to ~2000px per side), so keep
+      // only a bounded-size copy in memory instead of the full image.
+      plant->thumbnail = QImage::fromData(imageData).scaled(
+        256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
    }
 
    plant->images = images;
