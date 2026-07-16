@@ -91,59 +91,13 @@ Page {
       mainPage.hasApiKey = plantsModel.hasApiKey()
    }
 
-   Rectangle {
-      id: placeholder
-      radius: units.gu(4)
-      border.width: 2
-      border.color: "#cdcdcd"
-      visible: !plantsModel.count
-
-      anchors.centerIn: parent
-      width: parent.width * 0.7
-      height: units.gu(16)
-
-      MouseArea {
-         anchors.fill: parent
-         onClicked: mainPage.startNewIdentification()
-      }
-
-      Column {
-         anchors.centerIn: parent
-         spacing: units.gu(2)
-
-         Icon {
-            anchors.horizontalCenter: parent.horizontalCenter
-            name: "add"
-            width: units.gu(6)
-            height: units.gu(6)
-            color: "#676767"
-         }
-
-         Text {
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: placeholder.width * 0.8
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-            font.bold: true
-            text: i18n.tr("No plants identified yet")
-         }
-
-         Text {
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: placeholder.width * 0.8
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-            color: "#676767"
-            text: i18n.tr("Tap here to identify your first plant")
-         }
-      }
-   }
-
    Button {
       id: analyzeButton
-      anchors.top: header.bottom
+      anchors.top: plantsModel.count > 0 ? header.bottom : undefined
       anchors.topMargin: units.gu(2)
-      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.horizontalCenter: plantsModel.count > 0 ? parent.horizontalCenter : undefined
+      anchors.centerIn: plantsModel.count > 0 ? undefined : parent
+      color: plantsModel.count > 0 ? undefined : "#669900"
       text: i18n.tr("New identification")
       onClicked: mainPage.startNewIdentification()
    }
