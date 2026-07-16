@@ -100,15 +100,41 @@ Page {
 
       anchors.centerIn: parent
       width: parent.width * 0.7
-      height: units.gu(8)
+      height: units.gu(16)
+
+      MouseArea {
+         anchors.fill: parent
+         onClicked: mainPage.startNewIdentification()
+      }
 
       Column {
          anchors.centerIn: parent
          spacing: units.gu(2)
 
+         Icon {
+            anchors.horizontalCenter: parent.horizontalCenter
+            name: "add"
+            width: units.gu(6)
+            height: units.gu(6)
+            color: "#676767"
+         }
+
          Text {
             anchors.horizontalCenter: parent.horizontalCenter
+            width: placeholder.width * 0.8
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+            font.bold: true
             text: i18n.tr("No plants identified yet")
+         }
+
+         Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: placeholder.width * 0.8
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+            color: "#676767"
+            text: i18n.tr("Tap here to identify your first plant")
          }
       }
    }
@@ -119,21 +145,7 @@ Page {
       anchors.topMargin: units.gu(2)
       anchors.horizontalCenter: parent.horizontalCenter
       text: i18n.tr("New identification")
-      onClicked: {
-         if (!mainPage.hasApiKey) {
-            var dialog = Dialogs.showErrorDialog(
-                     root, i18n.tr("API Key missing"), i18n.tr(
-                        "The Pl@ntNet API-Key has not been configured yet. Without this, the app will not work."))
-
-            dialog.accepted.connect(function () {
-               mainPage.openSettings()
-            })
-         } else {
-            pageStack.push(Qt.resolvedUrl("RequestPage.qml"), {
-                              "plantsModel": plantsModel
-                           })
-         }
-      }
+      onClicked: mainPage.startNewIdentification()
    }
 
    ListView {
@@ -194,6 +206,22 @@ Page {
       text: plantList.count == 1 ? i18n.tr("1 identified plant") : i18n.tr(
                                       "%1 identified plants").arg(
                                       plantList.count)
+   }
+
+   function startNewIdentification() {
+      if (!mainPage.hasApiKey) {
+         var dialog = Dialogs.showErrorDialog(
+                  root, i18n.tr("API Key missing"), i18n.tr(
+                     "The Pl@ntNet API-Key has not been configured yet. Without this, the app will not work."))
+
+         dialog.accepted.connect(function () {
+            mainPage.openSettings()
+         })
+      } else {
+         pageStack.push(Qt.resolvedUrl("RequestPage.qml"), {
+                           "plantsModel": plantsModel
+                        })
+      }
    }
 
    function openSettings() {
