@@ -49,9 +49,11 @@ public:
    void setApiKey(QString key);
 
    void identifyPlant(QVariantList& request);
+   void testApiKey(QString key);
 
 signals:
    void identificationResult(QString error, QVariantList result);
+   void apiKeyTestResult(bool ok, QString error);
 
 protected:
    QHttpMultiPart* createMultipart(QVariantList& request, QVariantList& sourceImages, QString& err);

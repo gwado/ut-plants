@@ -141,6 +141,41 @@ void Identification::setApiKey(QString key)
 }
 
 // **************************************************************************
+// testApiKey
+// **************************************************************************
+
+void Identification::testApiKey(QString key)
+{
+   QUrlQuery q;
+   q.addQueryItem("api-key", key);
+
+   QUrl testUrl(LANGUAGES_URL);
+   testUrl.setQuery(q);
+
+   net->get<network::ReqCallback>(
+     testUrl, headers,
+     [this](int err, int code, QByteArray /*body*/)
+     {
+        if (err != QNetworkReply::NoError || code != 200)
+        {
+           QString message;
+
+           if (code == 401 || code == 403)
+              message = C::gettext("Invalid API key");
+           else if (err != QNetworkReply::NoError)
+              message = C::gettext("Network error, please check your connection");
+           else
+              message = QString(C::gettext("Unexpected server response (%1)")).arg(code);
+
+           emit apiKeyTestResult(false, message);
+           return;
+        }
+
+        emit apiKeyTestResult(true, "");
+     });
+}
+
+// **************************************************************************
 // identifyPlant
 // **************************************************************************
 

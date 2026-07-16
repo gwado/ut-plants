@@ -47,6 +47,8 @@ PlantsModel::PlantsModel(QObject* parent)
 
    connect(&identificator, &Identification::identificationResult, this,
            &PlantsModel::identificationResult);
+   connect(&identificator, &Identification::apiKeyTestResult, this,
+           &PlantsModel::apiKeyTestResult);
 }
 
 // **************************************************************************

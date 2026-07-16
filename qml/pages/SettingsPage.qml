@@ -3,7 +3,10 @@ import Lomiri.Components.ListItems 1.3
 import Lomiri.Components.Themes 1.3
 import QtQuick 2.7
 import QtQuick.Layouts 1.3
+import QtQuick.Controls 2.5 as QC
 import Qt.labs.settings 1.0
+
+import "../util"
 
 Page {
    id: settingsPage
@@ -11,10 +14,27 @@ Page {
    signal updateIntervalChanged(var interval, var enabled)
    signal apiKeyChanged(var key)
 
+   property var plantsModel: null
+   property bool showApiKey: false
+   property bool testingApiKey: false
+
    Settings {
       id: settings
       property string apiKey
       property bool keepDisplayOn
+   }
+
+   Connections {
+      target: plantsModel
+      function onApiKeyTestResult(ok, error) {
+         testingApiKey = false
+
+         if (ok)
+            Dialogs.showErrorDialog(root, i18n.tr("API key valid"),
+                                    i18n.tr("The Pl@ntNet API key works correctly."))
+         else
+            Dialogs.showErrorDialog(root, i18n.tr("API key test failed"), error)
+      }
    }
 
    header: PageHeader {
@@ -96,6 +116,7 @@ Page {
                         placeholderText: i18n.tr("Enter API-Key")
                         width: parent.width - units.gu(2) - saveButton.width
                         text: settings.apiKey
+                        echoMode: settingsPage.showApiKey ? TextInput.Normal : TextInput.Password
 
                         onActiveFocusChanged: {
                                 keyboardRect.visible = activeFocus
@@ -116,6 +137,47 @@ Page {
                            emit: apiKeyChanged(apiKeyInput.text)
                            pageStack.pop()
                         }
+                     }
+                  }
+
+                  Row {
+                     anchors.left: parent.left
+                     spacing: units.gu(1)
+
+                     Text {
+                        text: settingsPage.showApiKey ? i18n.tr("Hide API-Key") : i18n.tr(
+                                                           "Show API-Key")
+                        color: LomiriColors.blue
+                        font.underline: true
+
+                        MouseArea {
+                           anchors.fill: parent
+                           onClicked: settingsPage.showApiKey = !settingsPage.showApiKey
+                        }
+                     }
+                  }
+
+                  Row {
+                     anchors.left: parent.left
+                     spacing: units.gu(1)
+
+                     Button {
+                        id: testApiKeyButton
+                        text: i18n.tr("Test key")
+                        enabled: apiKeyInput.text.length > 0 && !settingsPage.testingApiKey
+                                 && settingsPage.plantsModel
+                        onClicked: {
+                           settingsPage.testingApiKey = true
+                           settingsPage.plantsModel.testApiKey(apiKeyInput.text)
+                        }
+                     }
+
+                     QC.BusyIndicator {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: units.gu(3)
+                        height: units.gu(3)
+                        visible: settingsPage.testingApiKey
+                        running: settingsPage.testingApiKey
                      }
                   }
                }
