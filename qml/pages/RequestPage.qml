@@ -30,18 +30,37 @@ Page {
       })
    }
 
-   Text {
-      id: titleText
+   Row {
+      id: titleRow
       anchors.top: header.bottom
       anchors.topMargin: units.gu(2)
       anchors.horizontalCenter: parent.horizontalCenter
       width: parent.width * 0.9
-      text: i18n.tr(
-               'Add up to 5 images for identification. The images must be of the same plant. The more images are provided, the better the identification result will be.') + '\n\n' + i18n.tr(
-               'Pl@ntNet recommends images with the smaller side larger than 600px and smaller than 2000px. Ideally a square image zoomed on the organ around 1280x1280px.')
-      color: Theme.palette.normal.baseText
+      spacing: units.gu(1)
 
-      wrapMode: Text.WordWrap
+      Text {
+         id: titleText
+         width: parent.width - helpButton.width - parent.spacing
+         text: i18n.tr(
+                  'Add up to 5 images for identification. The images must be of the same plant. The more images are provided, the better the identification result will be.')
+         color: Theme.palette.normal.baseText
+
+         wrapMode: Text.WordWrap
+      }
+
+      IconButton {
+         id: helpButton
+         anchors.verticalCenter: titleText.verticalCenter
+         widthGu: 4
+         heightGu: 4
+         iconName: "help"
+
+         onClicked: function () {
+            Dialogs.showErrorDialog(
+                     root, i18n.tr("Image recommendations"), i18n.tr(
+                        'Pl@ntNet recommends images with the smaller side larger than 600px and smaller than 2000px. Ideally a square image zoomed on the organ around 1280x1280px.'))
+         }
+      }
    }
 
    ListModel {
@@ -95,7 +114,7 @@ Page {
 
       model: imageModel
       anchors.topMargin: units.gu(2)
-      anchors.top: titleText.bottom
+      anchors.top: titleRow.bottom
       anchors.bottom: analyzeButton.top
       anchors.bottomMargin: units.gu(2)
       anchors.horizontalCenter: parent.horizontalCenter
