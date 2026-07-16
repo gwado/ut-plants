@@ -122,7 +122,9 @@ Page {
          anchors.verticalCenter: parent.verticalCenter
          tagText: modelData === "" ? i18n.tr("All") : modelData
          selected: mainPage.activeFilter === modelData
-         onClicked: mainPage.activeFilter = modelData
+         onClicked: function () {
+            mainPage.activeFilter = modelData
+         }
       }
    }
 

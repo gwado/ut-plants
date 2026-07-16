@@ -56,7 +56,9 @@ Page {
             TagChip {
                tagText: modelData
                removable: true
-               onRemove: plantPage.removeTag(modelData)
+               onRemove: function () {
+                  plantPage.removeTag(modelData)
+               }
             }
          }
       }
@@ -97,7 +99,9 @@ Page {
 
             TagChip {
                tagText: modelData
-               onClicked: plantPage.addTag(modelData)
+               onClicked: function () {
+                  plantPage.addTag(modelData)
+               }
             }
          }
       }
