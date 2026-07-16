@@ -19,15 +19,36 @@ Page {
    }
 
    function importImages(urls) {
-      urls.forEach(function (fileUrl) {
-         if (imageModel.count < 6) {
-            imageModel.insert(imageModel.count - 1, {
-                                 "type": 'image',
-                                 "url": fileUrl + '',
-                                 "organ": PlantUtils.organs[1].name
-                              })
+      var pending = urls.slice()
+
+      function processNext() {
+         if (!pending.length)
+            return
+
+         var fileUrl = pending.shift()
+
+         if (imageModel.count >= 6) {
+            processNext()
+            return
          }
-      })
+
+         var insertIndex = imageModel.count - 1
+
+         imageModel.insert(insertIndex, {
+                              "type": 'image',
+                              "url": fileUrl + '',
+                              "organ": PlantUtils.organs[0].name
+                           })
+
+         var dialog = Dialogs.showPickerDialog(root)
+
+         dialog.accepted.connect(function () {
+            imageModel.setProperty(insertIndex, "organ", dialog.selection)
+            processNext()
+         })
+      }
+
+      processNext()
    }
 
    Text {
@@ -122,7 +143,7 @@ Page {
                var dialog = Dialogs.showPickerDialog(root)
 
                dialog.accepted.connect(function () {
-                  mainText = PlantUtils.toTitle(dialog.selection)
+                  imageModel.setProperty(index, "organ", dialog.selection)
                })
             }
 
