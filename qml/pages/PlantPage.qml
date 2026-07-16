@@ -33,7 +33,7 @@ Page {
    Column {
       id: tagsSection
       anchors.bottom: parent.bottom
-      anchors.bottomMargin: (keyboardRect.visible ? keyboardRect.height : 0) + units.gu(2)
+      anchors.bottomMargin: units.gu(4)
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.leftMargin: units.gu(2)
@@ -76,9 +76,6 @@ Page {
             onAccepted: {
                plantPage.addTag(text)
                text = ""
-            }
-            onActiveFocusChanged: {
-               keyboardRect.visible = activeFocus
             }
          }
 
@@ -149,14 +146,5 @@ Page {
          currentTags = tags
       else
          Dialogs.showErrorDialog(root, i18n.tr("Failed to update tags"), err)
-   }
-
-   Rectangle {
-      id: keyboardRect
-      width: parent.width
-      height: parent.height * 0.3
-      anchors.bottom: parent.bottom
-      color: "white"
-      visible: false
    }
 }
