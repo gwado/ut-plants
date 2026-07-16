@@ -97,7 +97,7 @@ Page {
       anchors.topMargin: units.gu(2)
       anchors.horizontalCenter: plantsModel.count > 0 ? parent.horizontalCenter : undefined
       anchors.centerIn: plantsModel.count > 0 ? undefined : parent
-      color: plantsModel.count > 0 ? undefined : "#669900"
+      color: plantsModel.count > 0 ? undefined : LomiriColors.green
       text: i18n.tr("New identification")
       onClicked: mainPage.startNewIdentification()
    }
