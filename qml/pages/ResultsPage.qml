@@ -174,7 +174,7 @@ Page {
                var err = plantsModel.savePlant(plant)
 
                if (!err) {
-                  pageStack.pop()
+                  saveToast.show()
                } else {
                   Dialogs.showErrorDialog(
                            root, i18n.tr("Saving result failed"),
@@ -183,5 +183,11 @@ Page {
             }
          }
       }
+   }
+
+   Toast {
+      id: saveToast
+      text: i18n.tr("Plant saved")
+      onDismissed: pageStack.pop()
    }
 }

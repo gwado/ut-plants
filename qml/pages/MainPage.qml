@@ -13,7 +13,6 @@ import PlantsModel 1.0
 Page {
    id: mainPage
    anchors.fill: parent
-   property bool loadingScreenShown: false
    property bool hasApiKey: false
 
    header: PageHeader {
@@ -51,29 +50,11 @@ Page {
       }
    }
 
-   LoadingScreen {
-      visible: mainPage.loadingScreenShown
-   }
-
    PlantsModel {
       id: plantsModel
-
-      onIdentificationResult: {
-         mainPage.loadingScreenShown = false
-
-         if (error) {
-            Dialogs.showErrorDialog(
-                     root, i18n.tr("Identification failed"), i18n.tr(
-                        "Failed to send identification request to Pl@ntNet (%1).").arg(
-                        error))
-            return
-         }
-
-         pageStack.push(Qt.resolvedUrl("ResultsPage.qml"), {
-                           "resultsData": result,
-                           "plantsModel": plantsModel
-                        })
-      }
+      // identificationResult is handled by RequestPage.qml, which stays visible
+      // (with its own loading feedback) for the duration of the request instead
+      // of popping back here immediately.
    }
 
    Component.onCompleted: {

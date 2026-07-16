@@ -11,11 +11,43 @@ import "../util"
 import PlantsModel 1.0
 
 Page {
+   id: requestPage
    property var plantsModel: null
+   property bool loadingScreenShown: false
 
    header: PageHeader {
       id: header
       title: i18n.tr('New identification')
+   }
+
+   LoadingScreen {
+      visible: requestPage.loadingScreenShown
+   }
+
+   Connections {
+      target: plantsModel
+      function onIdentificationResult(errorCode, errorMessage, result) {
+         requestPage.loadingScreenShown = false
+
+         if (errorCode) {
+            var dialog = Dialogs.showErrorDialog(
+                     root, i18n.tr("Identification failed"), errorMessage)
+
+            if (errorCode === "invalid-key") {
+               dialog.accepted.connect(function () {
+                  mainPage.openSettings()
+               })
+            }
+
+            return
+         }
+
+         pageStack.pop()
+         pageStack.push(Qt.resolvedUrl("ResultsPage.qml"), {
+                           "resultsData": result,
+                           "plantsModel": plantsModel
+                        })
+      }
    }
 
    function importImages(urls) {
@@ -86,7 +118,7 @@ Page {
       anchors.horizontalCenter: parent.horizontalCenter
 
       text: i18n.tr("Identify")
-      enabled: imageModel.count > 1
+      enabled: imageModel.count > 1 && !requestPage.loadingScreenShown
       onClicked: {
          var request = []
 
@@ -102,9 +134,8 @@ Page {
                          })
          }
 
+         requestPage.loadingScreenShown = true
          plantsModel.identifyPlant(request)
-         pageStack.pop()
-         mainPage.loadingScreenShown = true
       }
    }
 

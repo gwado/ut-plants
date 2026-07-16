@@ -56,7 +56,7 @@ public:
    bool hasApiKey();
 
 signals:
-   void identificationResult(QString error, QVariantList result);
+   void identificationResult(QString errorCode, QString errorMessage, QVariantList result);
    void apiKeyTestResult(bool ok, QString error);
 
 protected:

@@ -116,7 +116,7 @@ public:
 
 signals:
    void countChanged();
-   void identificationResult(QString error, QVariantList result);
+   void identificationResult(QString errorCode, QString errorMessage, QVariantList result);
    void apiKeyTestResult(bool ok, QString error);
 
 private:
