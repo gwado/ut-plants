@@ -75,7 +75,8 @@ Item {
 
             QC.RadioButton {
                text: PlantUtils.organs[index].title
-               onClicked: selection = PlantUtils.organs[index].name
+               checked: pickerDialog.selection === PlantUtils.organs[index].name
+               onClicked: pickerDialog.selection = PlantUtils.organs[index].name
             }
          }
 

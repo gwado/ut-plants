@@ -24,7 +24,7 @@ Page {
             imageModel.insert(imageModel.count - 1, {
                                  "type": 'image',
                                  "url": fileUrl + '',
-                                 "organ": PlantUtils.organs[1].name
+                                 "organ": PlantUtils.organs[0].name
                               })
          }
       })
@@ -141,7 +141,7 @@ Page {
                var dialog = Dialogs.showPickerDialog(root)
 
                dialog.accepted.connect(function () {
-                  mainText = PlantUtils.toTitle(dialog.selection)
+                  imageModel.setProperty(index, "organ", dialog.selection)
                })
             }
 
