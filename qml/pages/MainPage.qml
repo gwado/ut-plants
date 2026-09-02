@@ -14,6 +14,7 @@ Page {
    id: mainPage
    anchors.fill: parent
    property bool loadingScreenShown: false
+   property bool hasApiKey: false
 
    header: PageHeader {
       id: header
@@ -31,7 +32,6 @@ Page {
 
    Settings {
       id: settings
-      property string apiKey
       property bool disclaimerAccepted: false
    }
 
@@ -87,6 +87,8 @@ Page {
       } else {
          plantsModel.reload()
       }
+
+      mainPage.hasApiKey = plantsModel.hasApiKey()
    }
 
    Rectangle {
@@ -118,7 +120,7 @@ Page {
       anchors.horizontalCenter: parent.horizontalCenter
       text: i18n.tr("New identification")
       onClicked: {
-         if (!settings.apiKey) {
+         if (!mainPage.hasApiKey) {
             var dialog = Dialogs.showErrorDialog(
                      root, i18n.tr("API Key missing"), i18n.tr(
                         "The Pl@ntNet API-Key has not been configured yet. Without this, the app will not work."))
@@ -200,8 +202,7 @@ Page {
                               })
 
       p.apiKeyChanged.connect(function (key) {
-         settings.apiKey = key
-         plantsModel.setApiKey(key)
+         mainPage.hasApiKey = !!key
       })
    }
 }

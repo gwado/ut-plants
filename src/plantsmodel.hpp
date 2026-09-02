@@ -84,9 +84,20 @@ public:
 
    Q_INVOKABLE QString init();
    Q_INVOKABLE void reload();
-   Q_INVOKABLE void setApiKey(QString key)
+
+   Q_INVOKABLE void persistApiKey(QString key)
    {
-      identificator.setApiKey(key);
+      identificator.persistApiKey(key);
+   }
+
+   Q_INVOKABLE QString loadApiKey()
+   {
+      return identificator.loadApiKey();
+   }
+
+   Q_INVOKABLE bool hasApiKey()
+   {
+      return identificator.hasApiKey();
    }
 
    Q_INVOKABLE void testApiKey(QString key)
