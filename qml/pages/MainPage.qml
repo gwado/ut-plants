@@ -72,49 +72,15 @@ Page {
       mainPage.hasApiKey = plantsModel.hasApiKey()
    }
 
-   Rectangle {
-      id: placeholder
-      radius: units.gu(4)
-      border.width: 2
-      border.color: "#cdcdcd"
-      visible: !plantsModel.count
-
-      anchors.centerIn: parent
-      width: parent.width * 0.7
-      height: units.gu(8)
-
-      Column {
-         anchors.centerIn: parent
-         spacing: units.gu(2)
-
-         Text {
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: i18n.tr("No plants identified yet")
-         }
-      }
-   }
-
    Button {
       id: analyzeButton
-      anchors.top: header.bottom
+      anchors.top: plantsModel.count > 0 ? header.bottom : undefined
       anchors.topMargin: units.gu(2)
-      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.horizontalCenter: plantsModel.count > 0 ? parent.horizontalCenter : undefined
+      anchors.centerIn: plantsModel.count > 0 ? undefined : parent
+      color: plantsModel.count > 0 ? undefined : LomiriColors.green
       text: i18n.tr("New identification")
-      onClicked: {
-         if (!mainPage.hasApiKey) {
-            var dialog = Dialogs.showErrorDialog(
-                     root, i18n.tr("API Key missing"), i18n.tr(
-                        "The Pl@ntNet API-Key has not been configured yet. Without this, the app will not work."))
-
-            dialog.accepted.connect(function () {
-               mainPage.openSettings()
-            })
-         } else {
-            pageStack.push(Qt.resolvedUrl("RequestPage.qml"), {
-                              "plantsModel": plantsModel
-                           })
-         }
-      }
+      onClicked: mainPage.startNewIdentification()
    }
 
    ListView {
@@ -175,6 +141,22 @@ Page {
       text: plantList.count == 1 ? i18n.tr("1 identified plant") : i18n.tr(
                                       "%1 identified plants").arg(
                                       plantList.count)
+   }
+
+   function startNewIdentification() {
+      if (!mainPage.hasApiKey) {
+         var dialog = Dialogs.showErrorDialog(
+                  root, i18n.tr("API Key missing"), i18n.tr(
+                     "The Pl@ntNet API-Key has not been configured yet. Without this, the app will not work."))
+
+         dialog.accepted.connect(function () {
+            mainPage.openSettings()
+         })
+      } else {
+         pageStack.push(Qt.resolvedUrl("RequestPage.qml"), {
+                           "plantsModel": plantsModel
+                        })
+      }
    }
 
    function openSettings() {
