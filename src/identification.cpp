@@ -272,7 +272,7 @@ void Identification::identifyPlant(QVariantList& request)
 
    if (multiPart == nullptr)
    {
-      emit identificationResult(QString(err), QVariantList());
+      emit identificationResult("client", QString(err), QVariantList());
       return;
    }
 
@@ -288,9 +288,42 @@ void Identification::identifyPlant(QVariantList& request)
         if (err != QNetworkReply::NoError || code != 200 || body.isEmpty())
         {
            qDebug() << "Identify response: " << QString::number(code) << " (" << body << ")";
-           emit identificationResult(
-             QString(C::gettext("Failed to process identification (%1/%2)")).arg(err).arg(code),
-             resultPayload);
+
+           QString errorCode;
+           QString errorMessage;
+
+           if (code == 401 || code == 403)
+           {
+              errorCode = "invalid-key";
+              errorMessage = C::gettext(
+                "The configured Pl@ntNet API key was rejected. Please check it in the app settings.");
+           }
+           else if (code == 429)
+           {
+              errorCode = "quota";
+              errorMessage
+                = C::gettext("Pl@ntNet's request quota has been reached. Please try again later.");
+           }
+           else if (code >= 500)
+           {
+              errorCode = "server";
+              errorMessage
+                = C::gettext("Pl@ntNet's server encountered an error. Please try again later.");
+           }
+           else if (err != QNetworkReply::NoError && code == 0)
+           {
+              errorCode = "network";
+              errorMessage
+                = C::gettext("Could not reach Pl@ntNet. Please check your network connection.");
+           }
+           else
+           {
+              errorCode = "unknown";
+              errorMessage
+                = QString(C::gettext("Failed to process identification (%1/%2)")).arg(err).arg(code);
+           }
+
+           emit identificationResult(errorCode, errorMessage, resultPayload);
            return;
         }
 
@@ -299,7 +332,8 @@ void Identification::identifyPlant(QVariantList& request)
 
         if (parsed.isEmpty() || !parsed.contains("results"))
         {
-           emit identificationResult(QString(C::gettext("Unexpected/malformed response received")),
+           emit identificationResult("unknown",
+                                     C::gettext("Unexpected/malformed response received"),
                                      resultPayload);
            return;
         }
@@ -364,7 +398,7 @@ void Identification::identifyPlant(QVariantList& request)
            resultPayload << currentResult;
         }
 
-        emit identificationResult("", resultPayload);
+        emit identificationResult("", "", resultPayload);
      });
 }
 
